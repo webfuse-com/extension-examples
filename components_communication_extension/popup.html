@@ -56,12 +56,14 @@
 	    			messageData.message &&
 	    			messageData.message.startsWith(chatMessageToPopupPrefix)
     			) {
+	    			const chatText = messageData.message.slice(chatMessageToPopupPrefix.length - 1).trim();
+	    			console.log('[components-comm] popup received chat:', chatText);
 	    			const messageEl = document.createElement('div');
 	    			const messagePrefixEl = document.createElement('u');
 	    			const messageTextEl = document.createElement('span');
 	    			messageEl.classList.add('message-item');
 	    			messagePrefixEl.innerText = 'Message from chat:'
-	    			messageTextEl.innerText = ` ${messageData.message.slice(chatMessageToPopupPrefix.length - 1).trim()}`;
+	    			messageTextEl.innerText = ` ${chatText}`;
 					messageEl.appendChild(messagePrefixEl);
 					messageEl.appendChild(messageTextEl);
 	    			messageContainerEl.appendChild(messageEl);
@@ -71,6 +73,7 @@
 
 	    	const pingMessageHandler = (messageData, sender) => {
 	    		if (messageData.event_type === 'ping_popup') {
+	    			console.log('[components-comm] popup received ping from', sender?.name || 'unknown');
 	    			const messageEl = document.createElement('div');
 	    			messageEl.classList.add('ping-item');
 					messageEl.innerText = `Ping sent to popup from ${sender?.name || 'unknown'} script on ${messageData.time}`;
@@ -94,13 +97,14 @@
 	    		try {
 	    			const response = await browser.runtime.sendMessage({event_type: 'forecast'});
 	    			if (response && response.forecast) {
+	    				console.log('[components-comm] popup received forecast:', response.forecast);
 	    				const messageEl = document.createElement('p');
 	    				messageEl.classList.add('weather-item');
 	    				messageEl.innerText = `🌈 Weather forecast: ${response.forecast}`;
 	    				messageContainerEl.appendChild(messageEl);
 	    			}
 	    		} catch (e) {
-	    			console.warn('Error fetching forecast:', e);
+	    			console.warn('[components-comm] popup forecast error:', e);
 	    		}
 	    	});
 

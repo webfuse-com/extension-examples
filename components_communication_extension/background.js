@@ -36,17 +36,18 @@ const chatMessageHandler = messageData => {
 		messageData.message &&
 		messageData.message.startsWith(chatMessageToBackgroundPrefix)
 	) {
-		const message = `### Message from chat: ${messageData.message.slice(chatMessageToBackgroundPrefix.length - 1).trim()}`;
-		console.log(message);
+		const chatText = messageData.message.slice(chatMessageToBackgroundPrefix.length - 1).trim();
+		console.log('[components-comm] background received chat:', chatText);
 	}
 };
 
 const forecastUrl = 'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=weather_code&forecast_days=1';
 const getForecast = async (messageData, sender) => {
-	if (messageData.event_type === 'forecast') {	
+	if (messageData.event_type === 'forecast') {
 		const res = await fetch(forecastUrl);
 		const data = await res.json();
 		const forecast = weatherCodes[data.current.weather_code] || 'Atmosphere is rolling a dice, outcome unknown';
+		console.log('[components-comm] background sending forecast:', forecast);
 		return { forecast };
 	}
 };
@@ -54,9 +55,10 @@ const getForecast = async (messageData, sender) => {
 browser.webfuseSession.on.addListener(chatMessageHandler);
 browser.runtime.onMessage.addListener(getForecast);
 
-// Listen to the broadcast message from extension popup
+// Listen to the broadcast message from extension popup.
+// Broadcasts arrive as { type: 'message', data: <payload> }, so we read `message.data`, not `message` directly.
 browser.webfuseSession.on.addListener((message, sender) => {
-  if (message === 'extension_popup_DOMContentLoaded') {
-    console.log('### Broadcasted message from popup ###', message, sender);
+  if (message?.data === 'extension_popup_DOMContentLoaded') {
+    console.log('[components-comm] background received broadcast from popup:', message.data);
   }
 });

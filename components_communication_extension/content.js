@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const pingContentHandler = (messageData, sender) => {
 		if (messageData.event_type === 'ping_content') {
+			console.log('[components-comm] content received ping from', sender?.name || 'unknown');
 			const messageEl = document.createElement('div');
 			messageEl.style.width = 'auto';
 			messageEl.style.margin = 'auto';
@@ -32,12 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			messageData.message &&
 			messageData.message.startsWith(chatMessageToContentPrefix)
 		) {
+			const chatText = messageData.message.slice(chatMessageToContentPrefix.length - 1).trim();
+			console.log('[components-comm] content received chat:', chatText);
 			const messageEl = document.createElement('section');
 			const messagePrefixEl = document.createElement('u');
 			const messageTextEl = document.createElement('span');
 			messageEl.classList.add('message-item');
 			messagePrefixEl.innerText = 'Message from chat:'
-			messageTextEl.innerText = ` ${messageData.message.slice(chatMessageToContentPrefix.length - 1).trim()}`;
+			messageTextEl.innerText = ` ${chatText}`;
 			messageEl.appendChild(messagePrefixEl);
 			messageEl.appendChild(messageTextEl);
 			messageContainer.appendChild(messageEl);
