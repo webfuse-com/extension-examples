@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Popup Content</title>
+    <style>
+        .container{
+            padding: 30px;
+        }
+    </style>
+</head>
+<body style="height:400px;">
+    <div>
+        <p>Change background color</p>
+        <input type="color" id="backgroundPicker">
+    </div>
+    <div>
+        <p>Change text color</p>
+        <input type="color" id="textPicker">
+    </div>
+    <div>
+        <p>Change div color</p>
+        <input type="color" id="divPicker">
+    </div>
+    <script>
+        // Handling color changes and sending messages
+        document.getElementById('backgroundPicker').addEventListener('input', (e) => {
+            browser.tabs.sendMessage(null, {type: "body_color", color: e.target.value});
+        });
+        document.getElementById('textPicker').addEventListener('input', (e) => {
+            browser.tabs.sendMessage(null, {type: "text_color", color: e.target.value});
+        });
+        document.getElementById('divPicker').addEventListener('input', (e) => {
+            browser.tabs.sendMessage(null, {type: "div_color", color: e.target.value});
+        });
+    </script>
+</body>
+</html>

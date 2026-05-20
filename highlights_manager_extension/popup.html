@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Highlights Manager</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; }
+    header {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #list { margin-top: 10px; }
+    .entry {
+      padding: 4px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button { margin-left: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h3>Highlights Manager</h3>
+    <button id="clearBtn">Clear All</button>
+  </header>
+  <div id="list"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

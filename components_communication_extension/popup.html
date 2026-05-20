@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	    <meta charset="UTF-8">
+	    <title>Messaging example popup</title>
+	    <style>
+	    	:root {
+	    		--border-width: 1px;
+	    	}
+	    	* {
+	    		font-family: Arial, sans-serif;
+	    	}
+	    	html, body { height: calc(100% - 2 * var(--border-width)); }
+	    	body {
+	    		margin: 0;
+	    		padding: 0;
+	    		background: #eee;
+	    		border: 1px solid black;
+	    		border-radius: 6px;
+	    	}
+	    	.message-item, .ping-item, .weather-item {
+	    		padding: 4px 8px;
+	    		border-bottom: dotted 1px #ccc;
+	    	}
+	    	.ping-item, .weather-item {
+	    		color: #aaa;
+	    		font-style: italic;
+	    		font-size: .8em;
+	    	}
+	    	.weather-item {
+	    		color: purple;
+	    	}
+	    	.message-item:last-child, .ping-item:last-child, .weather-item:last-child {
+	    		border-bottom: none;
+	    	}
+	    	#messages-container {
+	    		height: calc(100% - 22px);
+	    	}
+	    </style>
+	</head>
+	<body>
+	    <div id="messages-container"></div>
+	    <div class="buttons">
+	    	<button id="ping-content-script">Ping content script</button>
+	    	<button id="forecast">What's the weather today?</button>
+	    	<button id="ping-chat">Ping chat from popup</button>
+	    </div>
+	    <script>
+	    	const chatMessageToPopupPrefix = '/popup '
+	    	const messageContainerEl = document.getElementById('messages-container');
+	    	// chat message handler
+	    	const chatMessageHandler = messageData => {
+	    		// handle onbly `chat_message` events
+	    		if (
+	    			messageData.event_type === 'chat_message' &&
+	    			messageData.message &&
+	    			messageData.message.startsWith(chatMessageToPopupPrefix)
+    			) {
+	    			const messageEl = document.createElement('div');
+	    			const messagePrefixEl = document.createElement('u');
+	    			const messageTextEl = document.createElement('span');
+	    			messageEl.classList.add('message-item');
+	    			messagePrefixEl.innerText = 'Message from chat:'
+	    			messageTextEl.innerText = ` ${messageData.message.slice(chatMessageToPopupPrefix.length - 1).trim()}`;
+					messageEl.appendChild(messagePrefixEl);
+					messageEl.appendChild(messageTextEl);
+	    			messageContainerEl.appendChild(messageEl);
+	    			browser.browserAction.openPopup();
+	    		}
+	    	};
+
+	    	const pingMessageHandler = (messageData, sender) => {
+	    		if (messageData.event_type === 'ping_popup') {
+	    			const messageEl = document.createElement('div');
+	    			messageEl.classList.add('ping-item');
+					messageEl.innerText = `Ping sent to popup from ${sender?.name || 'unknown'} script on ${messageData.time}`;
+	    			messageContainerEl.appendChild(messageEl);
+	    			browser.browserAction.openPopup();
+	    		}
+	    	};
+
+	    	// add event listener to all webfuse session JS api events and distinct event types inside handler
+	    	browser.webfuseSession.on.addListener(chatMessageHandler);
+	    	// add event listener to all extension messages and distinct event types inside handler
+	    	browser.runtime.onMessage.addListener(pingMessageHandler);
+
+	    	const pingContentButton = document.getElementById('ping-content-script');
+	    	pingContentButton.addEventListener('click', () => {
+	    		browser.tabs.sendMessage(null, {event_type: 'ping_content', time: String(new Date())});
+	    	});
+
+	    	const forecastButton = document.getElementById('forecast');
+	    	forecastButton.addEventListener('click', async () => {
+	    		try {
+	    			const response = await browser.runtime.sendMessage({event_type: 'forecast'});
+	    			if (response && response.forecast) {
+	    				const messageEl = document.createElement('p');
+	    				messageEl.classList.add('weather-item');
+	    				messageEl.innerText = `🌈 Weather forecast: ${response.forecast}`;
+	    				messageContainerEl.appendChild(messageEl);
+	    			}
+	    		} catch (e) {
+	    			console.warn('Error fetching forecast:', e);
+	    		}
+	    	});
+
+    		const pingChatButton = document.getElementById('ping-chat');
+    		pingChatButton.addEventListener('click', () => {
+		    	browser.webfuseSession.sendChatMessage('Ping from extension popup');
+		    	// Alternative way to trigger JS API method
+		    	// browser.webfuseSession.apiRequest({
+		    	// 	cmd: 'send_chat_message',
+		    	// 	message: 'Ping from extension popup',
+		    	// });
+    		});
+
+			// broadcast messsage for all the participants
+    		document.addEventListener('DOMContentLoaded', ev => {
+    			browser.webfuseSession.broadcastMessage(`extension_popup_${ev.type}`);
+    		});
+	    </script>
+	</body>
+</html>

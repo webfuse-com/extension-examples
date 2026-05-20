@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Draggable Popup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: white;
+            padding: 16px;
+        }
+
+        #dragHandle {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            cursor: grab;
+            user-select: none;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin: -16px -16px 0 -16px;
+        }
+
+        #dragHandle:active {
+            cursor: grabbing;
+        }
+
+        .content {
+            padding: 16px 0;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="dragHandle">⋮⋮ Drag Me</div>
+
+    <div class="content">
+        <h2>Draggable Popup</h2>
+        <p>This popup can be dragged around the screen. Click and hold the header to move it.</p>
+    </div>
+
+    <script>
+        // Simple draggable implementation
+        (function() {
+            const dragHandle = document.getElementById('dragHandle');
+            let isDragging = false;
+            let dragState = null;
+
+            dragHandle.addEventListener('mousedown', async (e) => {
+                isDragging = true;
+
+                // Get current popup position
+                const currentPosition = await browser.browserAction.getPopupPosition();
+                const startLeft = parseInt(currentPosition.left) || 0;
+                const startTop = parseInt(currentPosition.top) || 0;
+
+                // Save drag start state
+                dragState = {
+                    startScreenX: e.screenX,
+                    startScreenY: e.screenY,
+                    startLeft: startLeft,
+                    startTop: startTop,
+                };
+
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || !dragState) return;
+
+                // Calculate how far mouse moved
+                const deltaX = e.screenX - dragState.startScreenX;
+                const deltaY = e.screenY - dragState.startScreenY;
+
+                // Calculate new position (don't go negative)
+                const newLeft = Math.max(0, dragState.startLeft + deltaX);
+                const newTop = Math.max(0, dragState.startTop + deltaY);
+
+                // Update popup position
+                browser.browserAction.setPopupPosition({
+                    left: `${newLeft}px`,
+                    top: `${newTop}px`
+                });
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                dragState = null;
+            });
+        })();
+    </script>
+</body>
+</html>

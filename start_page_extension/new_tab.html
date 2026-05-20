@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Space Start Page</title>
+   <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Start a Session 🔎</h1>
+    <div class="search-box">
+      <input id="query" type="text" placeholder="Enter your search..." />
+
+      <h3>Select a search engine</h3>
+      <div class="dropdown" id="engineDropdown">
+        <div class="dropdown-selected" id="selectedEngine">
+          <img src="https://www.google.com/favicon.ico" alt="icon">
+          <span>Google</span>
+        </div>
+        <div class="dropdown-list" id="engineList">
+          <div class="dropdown-item" data-url="https://www.google.com/search?q=">
+            <img src="https://www.google.com/favicon.ico" alt="Google">
+            <span>Google</span>
+          </div>
+          <div class="dropdown-item" data-url="https://www.bing.com/search?q=">
+            <img src="https://www.bing.com/sa/simg/favicon-2x.ico" alt="Bing">
+            <span>Bing</span>
+          </div>
+          <div class="dropdown-item" data-url="https://duckduckgo.com/?q=">
+            <img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo">
+            <span>DuckDuckGo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button id="searchBtn">Start Session</button>
+  </div>
+
+  <script>
+    const dropdown = document.getElementById('engineDropdown');
+    const selected = document.getElementById('selectedEngine');
+    const list = document.getElementById('engineList');
+    let currentUrl = selected.datasetUrl || 'https://www.google.com/search?q=';
+
+    selected.addEventListener('click', () => {
+      list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    });
+
+    list.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const img = item.querySelector('img').src;
+        const name = item.querySelector('span').textContent;
+        currentUrl = item.dataset.url;
+        selected.innerHTML = `<img src="${img}" alt="${name}"><span>${name}</span>`;
+        list.style.display = 'none';
+      });
+    });
+    
+    let myIndex = null;
+    let controlIndex = null;
+    browser.webfuseSession.onMessage.addListener(message => {
+      if (message?.event_type === 'host_changed') {
+        myIndex = message.my_index;
+      } else if (message?.event_type === 'tab_control') {
+        if (message.controlIndex !== message.leaderIndex) {
+          controlIndex = message.controlIndex;
+        }
+      }
+    });
+
+    const start = () => {
+      const query = document.getElementById('query').value.trim();
+      if (query) {
+        const url = currentUrl + encodeURIComponent(query);
+        if (myIndex === controlIndex) {
+          browser.webfuseSession.apiRequest({
+            cmd: "relocate",
+            url: url,
+            newTab: false,
+          });
+        } else {
+          browser.runtime.sendMessage({
+            type: "navigate",
+              url: url,
+              clientIndex: controlIndex,
+            });
+        }
+      }
+    };
+    document.getElementById('searchBtn').addEventListener('click', start);
+    document.getElementById("query").addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        start();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        list.style.display = 'none';
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => document.getElementById("query").focus());
+  </script>
+</body>
+</html>

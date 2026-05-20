@@ -1,0 +1,14 @@
+{
+	"manifest_version": 3,
+	"name": "Messaging example",
+	"version": "1.0",
+    "action": {
+    	"default_popup": "popup.html"
+    },
+    "content_scripts": [{
+    	"js": ["content.js"]
+    }],
+    "background": {
+		"service_worker": "background.js"
+	}
+}

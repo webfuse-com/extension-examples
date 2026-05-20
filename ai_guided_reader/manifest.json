@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "AI Guided Reader",
+    "version": "1.0",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "host_permissions": [
+        "https://your-llm-api.example/*"
+    ],
+    "env": [
+        {
+            "key": "AGENT_API_URL",
+            "value": "",
+            "description": "Base URL of the LLM API (e.g. https://your-llm-api.example/v1/messages)"
+        }
+    ]
+}

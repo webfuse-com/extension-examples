@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidepanel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="status-badge">
+        <span class="dot"></span>
+        Sidepanel Active
+      </div>
+
+      <h1>Sidepanel Controls</h1>
+      <p class="subtitle">Manage your sidepanel preferences</p>
+
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <div class="toggle-label">
+            <span class="toggle-title">Sidepanel Position</span>
+            <span class="toggle-description">Toggle between left and right side</span>
+            <div id="sideIndicator" class="side-indicator right">
+              <span class="dot"></span>
+              <span>Left</span>
+              <span>|</span>
+              <span>Right</span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="sideToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-label">
+            <span class="toggle-title">Open on Icon Click</span>
+            <span class="toggle-description">Clicking extension icon opens sidepanel instead of popup</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="behaviorToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

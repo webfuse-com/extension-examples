@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Sidepanel Example",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
